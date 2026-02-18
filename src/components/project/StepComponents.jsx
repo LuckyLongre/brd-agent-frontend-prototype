@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Loader, ConfirmModal } from '../common/index';
 import { useProject } from '../../context/ProjectContext';
-import { dummyFacts } from '../../data/dummyData';
+import { realWorldFacts, realWorldConflicts } from '../../data/realWorldData';
 
 /**
  * Step 1: Data Extraction Component
@@ -12,20 +12,25 @@ export function DataExtraction({ onNext }) {
   const [isLoading, setIsLoading] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
   const [factToRemove, setFactToRemove] = useState(null);
+  const [factsLoaded, setFactsLoaded] = useState(false);
 
-  // Simulate data extraction loading
+  // Simulate data extraction loading - only run once when component mounts
   useEffect(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      // Add dummy facts
-      dummyFacts.forEach((fact) => {
-        if (!facts.some((f) => f.id === fact.id)) {
+    if (!factsLoaded && facts.length === 0) {
+      setIsLoading(true);
+      const timer = setTimeout(() => {
+        // Add dummy facts from real-world data
+        realWorldFacts.slice(0, 8).forEach((fact) => {
           addFact(fact);
-        }
-      });
+        });
+        setFactsLoaded(true);
+        setIsLoading(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    } else {
       setIsLoading(false);
-    }, 2000);
-  }, []);
+    }
+  }, [factsLoaded, facts.length, addFact]);
 
   // Handle fact removal with confirmation
   const handleRemoveFact = (factId) => {
@@ -34,9 +39,11 @@ export function DataExtraction({ onNext }) {
   };
 
   const confirmRemove = () => {
-    removeFact(factToRemove);
-    setShowConfirm(false);
-    setFactToRemove(null);
+    if (factToRemove) {
+      removeFact(factToRemove);
+      setShowConfirm(false);
+      setFactToRemove(null);
+    }
   };
 
   return (
@@ -71,16 +78,30 @@ export function DataExtraction({ onNext }) {
               facts.map((fact) => (
                 <Card key={fact.id} className="flex items-start justify-between">
                   <div className="flex-1">
-                    <p className="text-text-primary font-medium mb-2">{fact.content}</p>
-                    <div className="flex gap-4 text-sm text-text-secondary">
+                    <div className="flex items-start justify-between mb-3">
+                      <p className="text-text-primary font-medium flex-1">{fact.content}</p>
+                      <div className="flex gap-2 ml-4">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          fact.priority === 'critical' ? 'bg-red-100 text-danger' :
+                          fact.priority === 'high' ? 'bg-orange-100 text-orange-700' :
+                          'bg-blue-100 text-primary'
+                        }`}>
+                          {fact.priority?.toUpperCase()}
+                        </span>
+                        <span className="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-text-secondary">
+                          {fact.category}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-3 text-sm text-text-secondary">
                       <span>📍 {fact.source}</span>
-                      <span>📅 {formatDate(fact.date)}</span>
+                      <span>📅 {formatDate(fact.timestamp)}</span>
                       <span>🏷️ {fact.platform}</span>
                     </div>
                   </div>
                   <button
                     onClick={() => handleRemoveFact(fact.id)}
-                    className="text-danger hover:bg-red-50 px-4 py-2 rounded-lg transition-colors ml-4"
+                    className="text-danger hover:bg-red-50 px-4 py-2 rounded-lg transition-colors ml-4 flex-shrink-0"
                     title="Delete fact"
                   >
                     🗑️
@@ -120,46 +141,27 @@ export function DataExtraction({ onNext }) {
  * Shows conflicts and allows resolution
  */
 export function ConflictDetection({ onNext, onPrev }) {
-  const { conflicts, resolveConflict, setProjectConflicts } = useProject();
+  const { resolveConflict, setProjectConflicts } = useProject();
   const [isLoading, setIsLoading] = useState(true);
   const [localConflicts, setLocalConflicts] = useState([]);
   const [comments, setComments] = useState({});
+  const [conflictsLoaded, setConflictsLoaded] = useState(false);
 
-  // Simulate conflict detection loading
+  // Simulate conflict detection loading - only run once
   useEffect(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      const dummyConflicts = [
-        {
-          id: 'conflict-1',
-          factA: {
-            id: 'fact-a1',
-            content: 'Users should be limited to 10 login attempts',
-          },
-          factB: {
-            id: 'fact-b1',
-            content: 'Users should have unlimited login attempts',
-          },
-          sources: 'Security team vs. User experience team',
-        },
-        {
-          id: 'conflict-2',
-          factA: {
-            id: 'fact-a2',
-            content: 'Data should be retained for 1 year',
-          },
-          factB: {
-            id: 'fact-b2',
-            content: 'Data should be retained for 5 years',
-          },
-          sources: 'Privacy policy vs. Compliance requirements',
-        },
-      ];
-      setLocalConflicts(dummyConflicts);
-      setProjectConflicts(dummyConflicts);
-      setIsLoading(false);
-    }, 2000);
-  }, []);
+    if (!conflictsLoaded && localConflicts.length === 0) {
+      setIsLoading(true);
+      const timer = setTimeout(() => {
+        // Use real-world conflicts
+        const conflicts = realWorldConflicts.slice(0, 3);
+        setLocalConflicts(conflicts);
+        setProjectConflicts(conflicts);
+        setConflictsLoaded(true);
+        setIsLoading(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [conflictsLoaded, localConflicts.length, setProjectConflicts]);
 
   // Handle conflict resolution
   const handleResolveConflict = (conflictId, selectedFactId) => {
@@ -199,11 +201,28 @@ export function ConflictDetection({ onNext, onPrev }) {
             ) : (
               localConflicts.map((conflict) => (
                 <Card key={conflict.id} className="space-y-4">
-                  <h3 className="font-semibold text-text-primary">Conflicting Requirements</h3>
+                  {/* Conflict Header */}
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg text-text-primary mb-1">
+                        {conflict.title}
+                      </h3>
+                      <p className="text-sm text-text-secondary">{conflict.description}</p>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap ml-4 ${
+                      conflict.severity === 'high' ? 'bg-danger text-white' :
+                      conflict.severity === 'medium' ? 'bg-warning text-black' :
+                      'bg-blue-100 text-primary'
+                    }`}>
+                      {conflict.severity?.toUpperCase()}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-text-secondary italic">Impact: {conflict.impact}</p>
 
                   {/* Fact A */}
                   <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-                    <label className="flex items-start gap-3">
+                    <label className="flex items-start gap-3 cursor-pointer">
                       <input
                         type="radio"
                         name={conflict.id}
@@ -211,22 +230,29 @@ export function ConflictDetection({ onNext, onPrev }) {
                         onChange={() =>
                           handleResolveConflict(conflict.id, conflict.factA.id)
                         }
-                        className="mt-1"
+                        className="mt-1 w-4 h-4"
                       />
-                      <div>
+                      <div className="flex-1">
                         <p className="font-medium text-text-primary">
-                          {conflict.factA.content}
+                          Option A: {conflict.factA.content}
                         </p>
-                        <p className="text-sm text-text-secondary mt-1">
-                          📍 {conflict.sources.split(' vs ')[0]}
+                        <p className="text-xs text-text-secondary mt-2">
+                          📍 {conflict.factA.source} • 📅 {formatDate(conflict.factA.timestamp)} • 🏷️ {conflict.factA.platform}
                         </p>
                       </div>
                     </label>
                   </div>
 
+                  {/* Separator */}
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 h-px bg-border"></div>
+                    <span className="text-text-secondary text-xs font-medium">vs</span>
+                    <div className="flex-1 h-px bg-border"></div>
+                  </div>
+
                   {/* Fact B */}
                   <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                    <label className="flex items-start gap-3">
+                    <label className="flex items-start gap-3 cursor-pointer">
                       <input
                         type="radio"
                         name={conflict.id}
@@ -234,14 +260,14 @@ export function ConflictDetection({ onNext, onPrev }) {
                         onChange={() =>
                           handleResolveConflict(conflict.id, conflict.factB.id)
                         }
-                        className="mt-1"
+                        className="mt-1 w-4 h-4"
                       />
-                      <div>
+                      <div className="flex-1">
                         <p className="font-medium text-text-primary">
-                          {conflict.factB.content}
+                          Option B: {conflict.factB.content}
                         </p>
-                        <p className="text-sm text-text-secondary mt-1">
-                          📍 {conflict.sources.split(' vs ')[1]}
+                        <p className="text-xs text-text-secondary mt-2">
+                          📍 {conflict.factB.source} • 📅 {formatDate(conflict.factB.timestamp)} • 🏷️ {conflict.factB.platform}
                         </p>
                       </div>
                     </label>
@@ -250,10 +276,10 @@ export function ConflictDetection({ onNext, onPrev }) {
                   {/* Comment Box */}
                   <div>
                     <label className="text-sm font-medium text-text-primary block mb-2">
-                      Optional Comment
+                      Add Your Resolution Reasoning (Optional)
                     </label>
                     <textarea
-                      placeholder="Add a note about this resolution..."
+                      placeholder="Explain why you chose this option and any important context..."
                       value={comments[conflict.id] || ''}
                       onChange={(e) =>
                         setComments({
@@ -261,7 +287,7 @@ export function ConflictDetection({ onNext, onPrev }) {
                           [conflict.id]: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none h-20"
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none h-24"
                     />
                   </div>
                 </Card>

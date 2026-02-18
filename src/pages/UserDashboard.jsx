@@ -5,17 +5,18 @@ import { Sidebar } from '../components/layout/Sidebar';
 import { Button, Card, EmptyState, Badge } from '../components/common/index';
 import { useAuth } from '../context/AuthContext';
 import { useProject } from '../context/ProjectContext';
-import { dummyProjects } from '../data/dummyData';
+import { realWorldProjects } from '../data/realWorldData';
 
 /**
  * User Dashboard Page - Shows all projects and allows creating new ones
- * Layout: Sidebar on left, project grid on right
+ * Responsive Layout: Sidebar on desktop, hidden on mobile
  */
 export function UserDashboard() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { projects, addProject } = useProject();
   const [displayProjects, setDisplayProjects] = useState([]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -27,12 +28,12 @@ export function UserDashboard() {
   // Initialize projects on component mount
   useEffect(() => {
     if (projects.length === 0) {
-      // Add dummy projects to context
-      dummyProjects.forEach((project) => {
+      // Add real-world projects to context
+      realWorldProjects.forEach((project) => {
         addProject(project);
       });
     }
-  }, []);
+  }, [projects.length, addProject]);
 
   // Update display projects when projects in context change
   useEffect(() => {
@@ -54,30 +55,55 @@ export function UserDashboard() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Main Content Area */}
-      <div className="flex">
-        {/* Sidebar */}
-        <Sidebar />
+      {/* Main Content Area - Responsive Layout */}
+      <div className="flex flex-col lg:flex-row">
+        {/* Mobile Sidebar Toggle */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        {/* Sidebar - Hidden on mobile, visible on desktop */}
+        <div
+          className={`fixed lg:relative top-0 left-0 z-40 lg:z-10 transition-all duration-300 ${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          }`}
+        >
+          <Sidebar />
+        </div>
 
         {/* Main Content */}
-        <div className="flex-1">
-          <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="flex-1 w-full">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            {/* Mobile Sidebar Toggle Button */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="lg:hidden mb-6 p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+              title="Toggle sidebar"
+            >
+              ☰ Menu
+            </button>
+
             {/* Header with Title and New Project Button */}
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
               <div>
-                <h1 className="text-3xl font-bold text-text-primary mb-2">
+                <h1 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">
                   My Projects
                 </h1>
-                <p className="text-text-secondary">
+                <p className="text-sm sm:text-base text-text-secondary">
                   Manage and view all your BRD projects
                 </p>
               </div>
-              <Link to="/user/project/new">
-                <Button className="text-lg px-6 py-3">+ New Project</Button>
+              <Link to="/user/project/new" className="w-full sm:w-auto">
+                <Button className="w-full sm:w-auto text-base px-4 sm:px-6 py-2 sm:py-3">
+                  + New Project
+                </Button>
               </Link>
             </div>
 
-            {/* Projects Grid */}
+            {/* Projects Grid - Fully responsive */}
             {displayProjects.length === 0 ? (
               <EmptyState
                 icon="📁"
@@ -85,17 +111,17 @@ export function UserDashboard() {
                 description="Create your first project to get started with BRD generation"
               />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                 {displayProjects.map((project) => (
                   <Link key={project.id} to={`/user/project/${project.id}/dashboard`}>
                     <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
                       {/* Project Header */}
                       <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-text-primary mb-1">
+                        <div className="flex-1 pr-2">
+                          <h3 className="text-lg font-semibold text-text-primary mb-1 line-clamp-2">
                             {project.name}
                           </h3>
-                          <p className="text-sm text-text-secondary">
+                          <p className="text-sm text-text-secondary line-clamp-2">
                             {project.description}
                           </p>
                         </div>
@@ -122,10 +148,10 @@ export function UserDashboard() {
                         ))}
                       </div>
 
-                      {/* Project Stats */}
+                      {/* Project Stats Grid */}
                       <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-border">
                         <div>
-                          <p className="text-xs text-text-secondary">Facts Extracted</p>
+                          <p className="text-xs text-text-secondary">Facts</p>
                           <p className="text-lg font-semibold text-text-primary">
                             {project.factsExtracted}
                           </p>
@@ -141,10 +167,14 @@ export function UserDashboard() {
                       {/* Platforms Used */}
                       <div className="mb-4">
                         <p className="text-xs text-text-secondary mb-2">Platforms</p>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                           {project.platforms.map((platform) => (
-                            <span key={platform} className="text-lg">
-                              {getPlatformIcon(platform)}
+                            <span
+                              key={platform}
+                              className="text-sm px-2 py-1 bg-gray-100 rounded text-text-secondary"
+                              title={platform}
+                            >
+                              {getPlatformIcon(platform)} {platform}
                             </span>
                           ))}
                         </div>
@@ -152,8 +182,7 @@ export function UserDashboard() {
 
                       {/* Last Edited Date */}
                       <div className="text-xs text-text-secondary">
-                        Last edited{' '}
-                        {formatDate(project.lastEdited)}
+                        Last edited {formatDate(project.lastEdited)}
                       </div>
                     </Card>
                   </Link>

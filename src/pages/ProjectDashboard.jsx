@@ -14,13 +14,14 @@ import {
 
 /**
  * Project Dashboard Page - Main page for processing a project through 4 steps
- * Layout: Sidebar | Step Progress | Dynamic Step Content
+ * Simplified responsive layout with horizontal progress indicator
  */
 export function ProjectDashboard() {
   const navigate = useNavigate();
   const { projectId } = useParams();
   const { isAuthenticated } = useAuth();
   const { currentProject, currentStep, moveToNextStep, loadProject } = useProject();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -34,106 +35,97 @@ export function ProjectDashboard() {
     if (projectId) {
       loadProject(projectId);
     }
-  }, [projectId]);
+  }, [projectId, loadProject]);
 
   // Handle step navigation
   const handleNextStep = () => {
     moveToNextStep();
   };
 
-  const handlePrevStep = () => {
-    // Navigate back in step
-    if (currentStep > 1) {
-      // This would be implemented with a previous step function in context
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <div className="flex">
-        {/* Sidebar */}
-        <Sidebar />
+      <div className="flex flex-col lg:flex-row">
+        {/* Mobile Sidebar Toggle */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        {/* Sidebar - Hidden on mobile, visible on desktop */}
+        <div
+          className={`fixed lg:relative top-0 left-0 z-40 lg:z-10 transition-all duration-300 ${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          }`}
+        >
+          <Sidebar />
+        </div>
 
         {/* Main Content */}
-        <div className="flex-1">
-          <div className="flex">
-            {/* Step Progress Panel */}
-            <div className="w-80 bg-white border-r border-border p-6 sticky top-20 h-[calc(100vh-80px)]">
-              <h3 className="font-bold text-lg text-text-primary mb-6">
-                Process Steps
-              </h3>
+        <div className="flex-1 w-full">
+          {/* Mobile Sidebar Toggle Button */}
+          <div className="lg:hidden sticky top-20 bg-white border-b border-border p-4 z-20">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors text-sm font-medium"
+              title="Toggle sidebar"
+            >
+              ☰ Menu
+            </button>
+          </div>
 
-              <div className="space-y-4">
-                {/* Step 1 */}
-                <StepIndicator
-                  stepNumber={1}
-                  title="Data Extraction"
-                  isCompleted={currentStep > 1}
-                  isActive={currentStep === 1}
-                  description="Extract facts from conversations"
-                />
+          {/* Horizontal Progress Bar */}
+          <div className="bg-white border-b border-border p-4 sm:p-6 sticky top-20 lg:top-20 z-10">
+            {/* Project Title */}
+            <div className="mb-4">
+              <h1 className="text-2xl sm:text-3xl font-bold text-text-primary">
+                {currentProject?.name}
+              </h1>
+              <p className="text-sm text-text-secondary mt-1">
+                Step {currentStep} of 4 • {getStepTitle(currentStep)}
+              </p>
+            </div>
 
-                {/* Step 2 */}
-                <StepIndicator
-                  stepNumber={2}
-                  title="Conflict Detection"
-                  isCompleted={currentStep > 2}
-                  isActive={currentStep === 2}
-                  description="Identify and resolve conflicts"
-                />
-
-                {/* Step 3 */}
-                <StepIndicator
-                  stepNumber={3}
-                  title="Final Summary"
-                  isCompleted={currentStep > 3}
-                  isActive={currentStep === 3}
-                  description="Review all requirements"
-                />
-
-                {/* Step 4 */}
-                <StepIndicator
-                  stepNumber={4}
-                  title="BRD Generated"
-                  isCompleted={currentStep > 4}
-                  isActive={currentStep === 4}
-                  description="View and edit the BRD"
-                />
+            {/* Progress Bar */}
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                {[1, 2, 3, 4].map((step) => (
+                  <div key={step} className="flex-1">
+                    <div
+                      className={`h-3 rounded-full transition-colors ${
+                        step < currentStep
+                          ? 'bg-success'
+                          : step === currentStep
+                            ? 'bg-primary'
+                            : 'bg-gray-300'
+                      }`}
+                    />
+                    <p className="text-xs text-text-secondary mt-1 text-center">
+                      {['Extract', 'Conflict', 'Summary', 'BRD'][step - 1]}
+                    </p>
+                  </div>
+                ))}
               </div>
-
-              {/* Project Info */}
-              {currentProject && (
-                <div className="mt-8 pt-6 border-t border-border">
-                  <h4 className="text-sm font-semibold text-text-primary mb-2">
-                    Project Info
-                  </h4>
-                  <p className="text-sm text-text-primary font-medium">
-                    {currentProject.name}
-                  </p>
-                  <p className="text-xs text-text-secondary mt-1">
-                    Created {formatDate(currentProject.createdAt)}
-                  </p>
-                </div>
-              )}
             </div>
+          </div>
 
-            {/* Dynamic Content Area */}
-            <div className="flex-1 p-8 max-w-4xl">
-              {currentStep === 1 && (
-                <DataExtraction onNext={handleNextStep} />
-              )}
-              {currentStep === 2 && (
-                <ConflictDetection onNext={handleNextStep} onPrev={handlePrevStep} />
-              )}
-              {currentStep === 3 && (
-                <FinalSummary onNext={handleNextStep} onPrev={handlePrevStep} />
-              )}
-              {currentStep === 4 && (
-                <BRDGenerated onPrev={handlePrevStep} />
-              )}
-            </div>
+          {/* Step Content */}
+          <div className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-4xl mx-auto w-full">
+            {currentStep === 1 && (
+              <DataExtraction onNext={handleNextStep} />
+            )}
+            {currentStep === 2 && (
+              <ConflictDetection onNext={handleNextStep} onPrev={() => {}} />
+            )}
+            {currentStep === 3 && (
+              <FinalSummary onNext={handleNextStep} onPrev={() => {}} />
+            )}
+            {currentStep === 4 && (
+              <BRDGenerated onPrev={() => {}} />
+            )}
           </div>
         </div>
       </div>
@@ -142,52 +134,16 @@ export function ProjectDashboard() {
 }
 
 /**
- * Step Indicator Component
- * Shows the status of each step in the process
+ * Helper to get step title
  */
-function StepIndicator({
-  stepNumber,
-  title,
-  isCompleted,
-  isActive,
-  description,
-}) {
-  return (
-    <div className="relative">
-      {/* Step Circle */}
-      <div className="flex gap-3">
-        <div className="flex flex-col items-center">
-          <div
-            className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm ${
-              isCompleted
-                ? 'bg-success'
-                : isActive
-                  ? 'bg-primary'
-                  : 'bg-gray-300'
-            }`}
-          >
-            {isCompleted ? '✓' : stepNumber}
-          </div>
-        </div>
-
-        {/* Step Content */}
-        <div className="flex-1">
-          <h4
-            className={`font-semibold text-sm ${
-              isActive
-                ? 'text-primary'
-                : isCompleted
-                  ? 'text-success'
-                  : 'text-text-secondary'
-            }`}
-          >
-            {title}
-          </h4>
-          <p className="text-xs text-text-secondary mt-1">{description}</p>
-        </div>
-      </div>
-    </div>
-  );
+function getStepTitle(step) {
+  const titles = {
+    1: 'Data Extraction',
+    2: 'Conflict Detection',
+    3: 'Final Summary',
+    4: 'BRD Generated',
+  };
+  return titles[step] || '';
 }
 
 /**

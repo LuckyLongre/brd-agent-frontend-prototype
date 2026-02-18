@@ -5,6 +5,7 @@ import { platforms } from '../../data/dummyData';
 
 /**
  * Collapsible sidebar component
+ * Responsive - works on mobile and desktop
  * Shows user profile and platform connections
  */
 export function Sidebar() {
@@ -14,14 +15,17 @@ export function Sidebar() {
   return (
     <div
       className={`bg-surface border-r border-border transition-all duration-300 flex flex-col ${
-        isCollapsed ? 'w-20' : 'w-64'
-      } min-h-screen`}
+        isCollapsed ? 'w-20' : 'w-60 sm:w-64'
+      } min-h-screen h-screen sticky top-0 overflow-y-auto`}
     >
       {/* Collapse Button */}
-      <div className="p-4 border-b border-border flex items-center justify-end">
+      <div className="p-4 border-b border-border flex items-center justify-between sticky top-0 bg-surface z-10">
+        {!isCollapsed && (
+          <h3 className="font-semibold text-text-primary text-sm">Sidebar</h3>
+        )}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors hidden sm:block"
           title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {isCollapsed ? '→' : '←'}
@@ -36,13 +40,13 @@ export function Sidebar() {
               <img
                 src={currentUser?.avatar}
                 alt={currentUser?.name}
-                className="w-10 h-10 rounded-full"
+                className="w-10 h-10 rounded-full flex-shrink-0"
               />
-              <div>
-                <p className="font-semibold text-sm text-text-primary">
+              <div className="min-w-0">
+                <p className="font-semibold text-sm text-text-primary truncate">
                   {currentUser?.name}
                 </p>
-                <p className="text-xs text-text-secondary">{currentUser?.email}</p>
+                <p className="text-xs text-text-secondary truncate">{currentUser?.email}</p>
               </div>
             </div>
           </div>
@@ -58,7 +62,7 @@ export function Sidebar() {
       </div>
 
       {/* Platforms Section */}
-      <div className="flex-1 p-4">
+      <div className="flex-1 p-4 overflow-y-auto">
         {!isCollapsed && (
           <h3 className="font-semibold text-sm text-text-primary mb-4">
             Connected Platforms
@@ -76,25 +80,24 @@ export function Sidebar() {
               title={isCollapsed ? platform.name : ''}
             >
               {!isCollapsed ? (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{platform.icon}</span>
-                    <span className="text-sm font-medium text-text-primary">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-lg flex-shrink-0">{platform.icon}</span>
+                    <span className="text-sm font-medium text-text-primary truncate">
                       {platform.name}
                     </span>
                   </div>
                   {platform.connected ? (
-                    <span className="text-xs bg-success text-white px-2 py-1 rounded-full">
-                      Connected
+                    <span className="text-xs bg-success text-white px-2 py-1 rounded-full flex-shrink-0">
+                      ✓
                     </span>
                   ) : (
-                    <Button
-                      variant="secondary"
-                      className="text-xs py-1 px-2"
+                    <button
+                      className="text-xs bg-gray-200 text-text-secondary px-2 py-1 rounded hover:bg-gray-300 transition-colors flex-shrink-0"
                       onClick={() => alert(`Connect ${platform.name}`)}
                     >
-                      Connect
-                    </Button>
+                      +
+                    </button>
                   )}
                 </div>
               ) : (
