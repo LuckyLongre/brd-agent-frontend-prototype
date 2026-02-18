@@ -308,8 +308,8 @@ export function NewProject() {
                           className="hidden"
                           id="file-input"
                         />
-                        <label htmlFor="file-input">
-                          <Button as="span" variant="secondary" className="text-xs sm:text-sm">
+                        <label htmlFor="file-input" className="cursor-pointer inline-block">
+                          <Button variant="secondary" className="text-xs sm:text-sm">
                             Select Files
                           </Button>
                         </label>
