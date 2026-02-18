@@ -35,7 +35,7 @@ export function ProjectDashboard() {
     if (projectId) {
       loadProject(projectId);
     }
-  }, [projectId, loadProject]);
+  }, [projectId]);
 
   // Handle step navigation
   const handleNextStep = () => {

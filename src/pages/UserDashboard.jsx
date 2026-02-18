@@ -33,7 +33,7 @@ export function UserDashboard() {
         addProject(project);
       });
     }
-  }, [projects.length, addProject]);
+  }, []);
 
   // Update display projects when projects in context change
   useEffect(() => {

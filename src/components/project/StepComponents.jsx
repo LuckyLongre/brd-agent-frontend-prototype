@@ -30,7 +30,7 @@ export function DataExtraction({ onNext }) {
     } else {
       setIsLoading(false);
     }
-  }, [factsLoaded, facts.length, addFact]);
+  }, [factsLoaded]);
 
   // Handle fact removal with confirmation
   const handleRemoveFact = (factId) => {
@@ -161,7 +161,7 @@ export function ConflictDetection({ onNext, onPrev }) {
       }, 2000);
       return () => clearTimeout(timer);
     }
-  }, [conflictsLoaded, localConflicts.length, setProjectConflicts]);
+  }, [conflictsLoaded]);
 
   // Handle conflict resolution
   const handleResolveConflict = (conflictId, selectedFactId) => {

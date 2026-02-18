@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useCallback } from 'react';
 
 // Create the Project Context for managing project-related data
 const ProjectContext = createContext();
