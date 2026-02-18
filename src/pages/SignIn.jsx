@@ -45,17 +45,17 @@ export function SignIn() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Centered Sign In Form */}
-      <div className="flex items-center justify-center py-24">
-        <div className="bg-surface rounded-xl shadow-sm border border-border p-8 w-full max-w-md">
-          <h1 className="text-2xl font-bold text-text-primary text-center mb-2">
+      {/* Centered Sign In Form - Fully Responsive */}
+      <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-24">
+        <div className="bg-surface rounded-xl shadow-sm border border-border p-6 sm:p-8 lg:p-10 w-full max-w-md">
+          <h1 className="text-2xl sm:text-3xl font-bold text-text-primary text-center mb-2">
             Welcome Back
           </h1>
-          <p className="text-text-secondary text-center mb-8 text-sm">
+          <p className="text-text-secondary text-center mb-6 sm:mb-8 text-xs sm:text-sm">
             Sign in to your account to continue
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             {/* Email Input */}
             <Input
               label="Email Address"
@@ -78,8 +78,8 @@ export function SignIn() {
 
             {/* Error Message */}
             {(formError || error) && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-danger text-sm">{formError || error}</p>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4">
+                <p className="text-danger text-xs sm:text-sm">{formError || error}</p>
               </div>
             )}
 
@@ -88,21 +88,21 @@ export function SignIn() {
               type="submit"
               fullWidth
               disabled={isLoading}
-              className="py-3 text-lg"
+              className="py-2 sm:py-3 text-base sm:text-lg"
             >
               {isLoading ? <Loader size="sm" /> : 'Sign In'}
             </Button>
 
             {/* Helper Text with Demo Credentials */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 text-xs sm:text-sm">
               <p className="text-primary font-semibold mb-2">Demo Credentials:</p>
-              <p className="text-text-secondary">Email: test@example.com</p>
-              <p className="text-text-secondary">Password: 123456</p>
+              <p className="text-text-secondary text-xs">Email: test@example.com</p>
+              <p className="text-text-secondary text-xs">Password: 123456</p>
             </div>
           </form>
 
           {/* Sign Up Link */}
-          <p className="text-center text-text-secondary mt-6">
+          <p className="text-center text-text-secondary text-xs sm:text-sm mt-6 sm:mt-8">
             Don't have an account?{' '}
             <a href="/signup" className="text-primary font-semibold hover:underline">
               Sign Up
@@ -165,17 +165,17 @@ export function SignUp() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Centered Sign Up Form */}
-      <div className="flex items-center justify-center py-24">
-        <div className="bg-surface rounded-xl shadow-sm border border-border p-8 w-full max-w-md">
-          <h1 className="text-2xl font-bold text-text-primary text-center mb-2">
+      {/* Centered Sign Up Form - Fully Responsive */}
+      <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-24">
+        <div className="bg-surface rounded-xl shadow-sm border border-border p-6 sm:p-8 lg:p-10 w-full max-w-md">
+          <h1 className="text-2xl sm:text-3xl font-bold text-text-primary text-center mb-2">
             Create Account
           </h1>
-          <p className="text-text-secondary text-center mb-8 text-sm">
+          <p className="text-text-secondary text-center mb-6 sm:mb-8 text-xs sm:text-sm">
             Join BRD Agent and start generating BRDs from conversations
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             {/* Name Input */}
             <Input
               label="Full Name"
@@ -218,8 +218,8 @@ export function SignUp() {
 
             {/* Error Message */}
             {formError && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-danger text-sm">{formError}</p>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4">
+                <p className="text-danger text-xs sm:text-sm">{formError}</p>
               </div>
             )}
 
@@ -228,14 +228,14 @@ export function SignUp() {
               type="submit"
               fullWidth
               disabled={isLoading}
-              className="py-3 text-lg"
+              className="py-2 sm:py-3 text-base sm:text-lg"
             >
               {isLoading ? <Loader size="sm" /> : 'Create Account'}
             </Button>
           </form>
 
           {/* Sign In Link */}
-          <p className="text-center text-text-secondary mt-6">
+          <p className="text-center text-text-secondary text-xs sm:text-sm mt-6 sm:mt-8">
             Already have an account?{' '}
             <a href="/signin" className="text-primary font-semibold hover:underline">
               Sign In

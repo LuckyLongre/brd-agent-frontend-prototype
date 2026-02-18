@@ -14,9 +14,9 @@ export function Navbar() {
   // Function to check if a link is active
   const isActive = (path) => location.pathname === path;
 
-  // Style for active links
+  // Style for active links - Responsive spacing
   const getLinkClass = (path) => {
-    const baseClass = 'mx-4 font-medium transition-colors duration-200';
+    const baseClass = 'px-2 sm:px-3 md:px-4 mx-1 sm:mx-2 font-medium transition-colors duration-200 text-xs sm:text-sm md:text-base';
     if (isActive(path)) {
       return `${baseClass} text-primary border-b-2 border-primary`;
     }
@@ -25,15 +25,15 @@ export function Navbar() {
 
   return (
     <nav className="bg-surface border-b border-border shadow-sm sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 font-bold text-xl">
-          <span className="text-2xl">📋</span>
-          <span className="text-text-primary">BRD Agent</span>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between gap-4">
+        {/* Logo - Responsive text sizing */}
+        <Link to="/" className="flex items-center gap-2 font-bold text-lg sm:text-xl flex-shrink-0">
+          <span className="text-xl sm:text-2xl">📋</span>
+          <span className="text-text-primary hidden sm:inline">BRD Agent</span>
         </Link>
 
-        {/* Navigation Links */}
-        <div className="flex items-center gap-6">
+        {/* Navigation Links - Hidden on mobile, visible on sm+ */}
+        <div className="hidden sm:flex items-center gap-2 sm:gap-4 md:gap-6">
           {!isAuthenticated && (
             <>
               <Link to="/">
@@ -49,31 +49,32 @@ export function Navbar() {
           )}
         </div>
 
-        {/* Auth Buttons */}
-        <div className="flex items-center gap-3">
+        {/* Auth Buttons - Responsive spacing */}
+        <div className="flex items-center gap-2 sm:gap-3">
           {!isAuthenticated ? (
             <>
-              <Link to="/signin">
-                <Button variant="secondary">Sign In</Button>
+              <Link to="/signin" className="hidden sm:block">
+                <Button variant="secondary" className="text-xs sm:text-sm">Sign In</Button>
               </Link>
               <Link to="/signup">
-                <Button>Sign Up</Button>
+                <Button className="text-xs sm:text-sm px-3 sm:px-4 py-1 sm:py-2">Sign Up</Button>
               </Link>
             </>
           ) : (
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="hidden sm:flex items-center gap-2">
                 <img
                   src={currentUser?.avatar}
                   alt={currentUser?.name}
                   className="w-8 h-8 rounded-full"
                 />
-                <span className="text-sm font-medium text-text-primary">
+                <span className="text-xs sm:text-sm font-medium text-text-primary">
                   {currentUser?.name}
                 </span>
               </div>
-              <Button onClick={logout} variant="secondary" className="text-sm">
-                Logout
+              <Button onClick={logout} variant="secondary" className="text-xs sm:text-sm px-2 sm:px-4 py-1 sm:py-2">
+                <span className="sm:hidden">Exit</span>
+                <span className="hidden sm:inline">Logout</span>
               </Button>
             </div>
           )}
